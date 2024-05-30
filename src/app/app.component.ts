@@ -20,12 +20,13 @@ export class AppComponent {
 
 constructor(public accountService:AccountService,private router:Router){
   router:inject(Router)
+ 
 }
 
 onLogOutClicked(){
   this.accountService.getLogout().subscribe({
     next:(response:string)=>{
-      this.accountService.currentUsername=null;
+      this.accountService.currentUserName=null;
       this.router.navigate(['/login'])
       
     },

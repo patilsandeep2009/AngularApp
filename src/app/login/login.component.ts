@@ -1,9 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject,PLATFORM_ID } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AccountService } from '../services/account.service';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule,isPlatformBrowser } from '@angular/common';
 import { LoginUser } from '../models/login-user';
+import { emit } from 'process';
 
 @Component({
   selector: 'app-login',
@@ -14,6 +15,7 @@ import { LoginUser } from '../models/login-user';
 })
 export class LoginComponent {
   router=inject(Router);
+  pfid=inject(PLATFORM_ID)
 loginForm:FormGroup;
 isLoginFormsubmitted:boolean=false
 constructor(private accountservice:AccountService){
@@ -35,13 +37,20 @@ get login_passwordControl():any{
 loginSubmitted(){
   this.isLoginFormsubmitted=true;
   if(this.loginForm.valid){
-    this.accountservice.postLogin(this.loginForm.value)
+    const email=this.loginForm.value.email!;
+    const pwd1=this.loginForm.value.password!;
+    
+    this.accountservice.postLogin(this.loginForm.value)   
     .subscribe({
-      next:(response:LoginUser)=>{
-          console.log(response)
+      next:(response:any)=>{
+          console.log(email)
+          this.accountservice.currentUserName=response.email;
+          
+          sessionStorage.setItem("token",response.token);
+          
           this.isLoginFormsubmitted=false;
-          this.accountservice.currentUsername=response.email;
-          this.router.navigateByUrl("/emplist")
+         
+          this.router.navigateByUrl("/emplist");
           this.loginForm.reset();
 
       },
